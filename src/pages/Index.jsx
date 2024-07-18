@@ -8,12 +8,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, setValue } = useForm();
   const [generatedCode, setGeneratedCode] = useState("");
 
   const onSubmit = async (data) => {
     try {
-      const response = await fetch("/generate_tool", {
+      const response = await fetch("http://localhost:5000/generate_tool", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,7 +79,7 @@ const Index = () => {
                 <TooltipTrigger asChild>
                   <div>
                     <label htmlFor="language" className="block text-sm font-medium text-gray-700">Primary Programming Language</label>
-                    <Select onValueChange={(value) => register("language").onChange({ target: { value } })}>
+                    <Select onValueChange={(value) => setValue("language", value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a language" />
                       </SelectTrigger>
