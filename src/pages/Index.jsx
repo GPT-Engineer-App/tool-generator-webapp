@@ -1,12 +1,11 @@
 import { useState, useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,10 +15,10 @@ const formSchema = z.object({
   toolName: z.string().min(1, "Tool name is required"),
   description: z.string().min(1, "Description is required"),
   language: z.string().min(1, "Language is required"),
-  frameworks: z.string(),
+  frameworks: z.array(z.string()).min(1, "At least one framework is required"),
   inputType: z.string().min(1, "Input type is required"),
   outputType: z.string().min(1, "Output type is required"),
-  additionalFeatures: z.string(),
+  additionalFeatures: z.array(z.string()),
   includeComments: z.boolean().default(false),
   codeStyle: z.enum(["standard", "compact", "verbose"]).default("standard"),
 });
@@ -34,14 +33,19 @@ const Index = () => {
       toolName: "",
       description: "",
       language: "",
-      frameworks: "",
+      frameworks: [],
       inputType: "",
       outputType: "",
-      additionalFeatures: "",
+      additionalFeatures: [],
       includeComments: false,
       codeStyle: "standard",
     },
   });
+
+  const languageOptions = ["Python", "JavaScript", "Java", "C#", "Ruby", "Go"];
+  const frameworkOptions = ["Django", "Flask", "React", "Angular", "Spring", ".NET", "Ruby on Rails", "Express.js"];
+  const dataTypeOptions = ["Text", "JSON", "XML", "CSV", "Binary"];
+  const additionalFeatureOptions = ["Logging", "Authentication", "Caching", "Rate Limiting", "Monitoring", "API Documentation", "Database Integration", "Error Handling"];
 
   useEffect(() => {
     // Set default example when the page loads
@@ -153,10 +157,11 @@ if __name__ == "__main__":
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="python">Python</SelectItem>
-                        <SelectItem value="javascript">JavaScript</SelectItem>
-                        <SelectItem value="java">Java</SelectItem>
-                        <SelectItem value="csharp">C#</SelectItem>
+                        {languageOptions.map((lang) => (
+                          <SelectItem key={lang} value={lang.toLowerCase()}>
+                            {lang}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -171,8 +176,26 @@ if __name__ == "__main__":
                   <FormItem>
                     <FormLabel>Frameworks</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Enter frameworks (comma-separated)" />
+                      <Select
+                        onValueChange={(value) => field.onChange([...field.value, value])}
+                        value={field.value}
+                        multiple
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select frameworks" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {frameworkOptions.map((framework) => (
+                            <SelectItem key={framework} value={framework.toLowerCase()}>
+                              {framework}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
+                    <FormDescription>
+                      Selected frameworks: {field.value.join(", ")}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -184,9 +207,20 @@ if __name__ == "__main__":
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Input Type</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Specify input type" />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select input type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {dataTypeOptions.map((type) => (
+                          <SelectItem key={type} value={type.toLowerCase()}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -198,9 +232,20 @@ if __name__ == "__main__":
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Output Type</FormLabel>
-                    <FormControl>
-                      <Input {...field} placeholder="Specify output type" />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select output type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {dataTypeOptions.map((type) => (
+                          <SelectItem key={type} value={type.toLowerCase()}>
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -213,8 +258,26 @@ if __name__ == "__main__":
                   <FormItem>
                     <FormLabel>Additional Features</FormLabel>
                     <FormControl>
-                      <Textarea {...field} placeholder="List any additional features" />
+                      <Select
+                        onValueChange={(value) => field.onChange([...field.value, value])}
+                        value={field.value}
+                        multiple
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select additional features" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {additionalFeatureOptions.map((feature) => (
+                            <SelectItem key={feature} value={feature.toLowerCase()}>
+                              {feature}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </FormControl>
+                    <FormDescription>
+                      Selected features: {field.value.join(", ")}
+                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
